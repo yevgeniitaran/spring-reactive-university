@@ -24,10 +24,12 @@ public class GithubClient {
 	public GithubClient(DashboardProperties properties) {
 		this.webClient = WebClient
 				.create("https://api.github.com")
+				.mutate()
 				.filter(ExchangeFilterFunctions
 						.basicAuthentication(properties.getGithub().getUsername(),
 								properties.getGithub().getToken()))
-				.filter(userAgent());
+				.filter(userAgent())
+				.build();
 	}
 
 	public Flux<GithubIssue> findOpenIssues(String owner, String repo) {
@@ -35,7 +37,7 @@ public class GithubClient {
 				.get()
 				.uri("/repos/{owner}/{repo}/issues?state=open", owner, repo)
 				.accept(VND_GITHUB_V3)
-				.exchange().flatMap(response -> response.bodyToFlux(GithubIssue.class));
+				.exchange().flatMapMany(response -> response.bodyToFlux(GithubIssue.class));
 	}
 
 

@@ -49,8 +49,8 @@ public class DashboardController {
 	@GetMapping("/reactor/people/{id}")
 	@ResponseBody
 	public Mono<ReactorPerson> findReactorPerson(@PathVariable String id) {
-		return this.repository.findOne(id)
-				.otherwiseIfEmpty(Mono.error(new ReactorPersonNotFoundException(id)));
+		return this.repository.findById(id)
+				.switchIfEmpty(Mono.error(new ReactorPersonNotFoundException(id)));
 	}
 
 	@ExceptionHandler

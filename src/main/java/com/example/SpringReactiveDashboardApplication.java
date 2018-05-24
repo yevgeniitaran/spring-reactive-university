@@ -37,7 +37,7 @@ public class SpringReactiveDashboardApplication {
 				);
 
 		return args -> {
-			repository.deleteAll().thenMany(repository.save(people)).blockLast();
+			repository.deleteAll().thenMany(repository.saveAll(people)).blockLast();
 		};
 	}
 

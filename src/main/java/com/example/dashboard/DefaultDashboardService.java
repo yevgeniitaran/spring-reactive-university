@@ -41,7 +41,7 @@ public class DefaultDashboardService implements DashboardService {
 				.getUsersInRoom(this.properties.getReactor().getGitterRoomId(), 300)
 				.collectList();
 
-		return users.flatMap(gitterUserList -> {
+		return users.flatMapMany(gitterUserList -> {
 			return issues.map(issue -> {
 				String userLogin = issue.getUser().getLogin();
 				Optional<GitterUser> gitterUser = gitterUserList.stream()

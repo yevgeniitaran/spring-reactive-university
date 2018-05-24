@@ -20,8 +20,8 @@ public class GitterClient {
 	private final WebClient webClient;
 
 	public GitterClient(DashboardProperties properties) {
-		this.webClient = WebClient.create()
-				.filter(oAuthToken(properties.getGitter().getToken()));
+		this.webClient = WebClient.create().mutate()
+				.filter(oAuthToken(properties.getGitter().getToken())).build();
 	}
 
 	public Flux<GitterUser> getUsersInRoom(String roomId, int limit) {
@@ -29,7 +29,7 @@ public class GitterClient {
 				.get().uri("https://api.gitter.im/v1/rooms/{roomId}/users?limit={limit}", roomId, limit)
 				.accept(MediaType.APPLICATION_JSON)
 				.exchange()
-				.flatMap(response -> response.bodyToFlux(GitterUser.class));
+				.flatMapMany(response -> response.bodyToFlux(GitterUser.class));
 	}
 
 	public Mono<GitterUser> findUserInRoom(String userName, String roomId) {
@@ -38,7 +38,7 @@ public class GitterClient {
 				.uri("https://api.gitter.im/v1/rooms/{roomId}/users?q={userName}", roomId, userName)
 				.accept(MediaType.APPLICATION_JSON)
 				.exchange()
-				.then(response -> response.bodyToMono(GitterUser.class));
+				.flatMap(response -> response.bodyToMono(GitterUser.class));
 	}
 
 	public Flux<GitterMessage> latestChatMessages(String roomId, int limit) {
@@ -47,7 +47,7 @@ public class GitterClient {
 				.uri("https://api.gitter.im/v1/rooms/{roomId}/chatMessages?limit={limit}", roomId, limit)
 				.accept(MediaType.APPLICATION_JSON)
 				.exchange()
-				.flatMap(response -> response.bodyToFlux(GitterMessage.class));
+				.flatMapMany(response -> response.bodyToFlux(GitterMessage.class));
 	}
 
 	public Flux<GitterMessage> streamChatMessages(String roomId) {
@@ -56,7 +56,7 @@ public class GitterClient {
 				.uri("https://stream.gitter.im/v1/rooms/{roomId}/chatMessages", roomId)
 				.accept(MediaType.TEXT_EVENT_STREAM)
 				.exchange()
-				.flatMap(response -> response.bodyToFlux(GitterMessage.class));
+				.flatMapMany(response -> response.bodyToFlux(GitterMessage.class));
 	}
 
 	private ExchangeFilterFunction oAuthToken(String token) {
